@@ -1,4 +1,5 @@
 /.vscode
 /Stock Tracker.code-workspace
 /Code/storage
-/Code/__pychache__
+Code/__pycache__/window.cpython-312.pyc
+Code/__pycache__/stocks.cpython-312.pyc
