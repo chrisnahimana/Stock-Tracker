@@ -1,21 +1,20 @@
-import matplotlib.pyplot as plt
-import matplotlib.dates as mlt
-import pandas as pd
-import seaborn as sns
-from datetime import datetime
-from datetime import date
-from datetime import timedelta
+from datetime import datetime, date, timedelta
 import polygon
 import stocks
 import os
 import sqlite3
 import sys
+import urllib3
+import window
+import tkinter as tk
 
-sns.set_theme(style="whitegrid")
 api_key = str(os.environ.get("POLYGON_API_KEY"))
 main_client = polygon.RESTClient(api_key)
 con = sqlite3.connect('Code/storage/stocks.db')
 stock = stocks.Stock(con)
+
+def on_close():
+   sys.exit() 
 
 def dating_check(query: str):
     key_characters  = ["w", "m", "y"]
@@ -36,11 +35,14 @@ def dating_check(query: str):
 def search(symbol: str):
     tickers = []
 
-    for ticker in main_client.list_tickers(market="stocks", search=f"{symbol}", active="true", order="asc", limit=50, sort="ticker"):
-        if len(tickers) < 50:
-            tickers.append(ticker)
-        else:
-            break
+    try:
+        for ticker in main_client.list_tickers(market="stocks", search=f"{symbol}", active="true", order="asc", limit=50, sort="ticker"):
+            if len(tickers) < 50:
+                tickers.append(ticker)
+            else:
+                break
+    except urllib3.exceptions.MaxRetryError:
+        sys.exit("No internet connection.")
     
     for tick in tickers:
         if tick.ticker == symbol:
@@ -114,26 +116,11 @@ def main():
             stock.addin(company, pricing[0], pricing[1])
 
         current_prices.append(pricing)
-
-    df = pd.DataFrame([], columns=["Timestamp"])
-    for counter, timing in enumerate(current_prices[0][1]):
-        df.loc[counter] = pd.Timestamp(timing, unit='s')
     
-    df['Date'] = df['Timestamp'].apply(lambda time: time.date())
-    df['Date_Ordinal'] = pd.to_datetime(df['Date']).apply(lambda date: date.toordinal())
-
-    plt.figure(figsize=(10, 8))
-    sns.set_palette(sns.color_palette("hls", len(current_prices)))
-    for counter, price in enumerate(current_prices):
-        sns.lineplot(x=df['Date'], y=price[0], label=f"{companies[counter].name}")
-
-    plt.gca().xaxis.set_major_formatter(mlt.DateFormatter('%m/%d/%Y'))
-    plt.xticks(rotation=45)
-    plt.xlabel('Day')
-    plt.ylabel('Average Price (USD)')
-    plt.title(f'Volume Weighted Average Prices since {end_time.strftime('%m/%d/%Y')}')
-    plt.legend(loc='upper left')
-    plt.show()
+    main_window = tk.Tk()
+    main_window.protocol("WM_DELETE_WINDOW", on_close)
+    window.create_window(main_window, current_prices, companies)
 
 main()
 con.close()
+tk.mainloop()
