@@ -70,15 +70,11 @@ def main():
 
     stock.all_stocks('s')
 
-    secondary_window = window.Window()
-    secondary_window.retrieve_input("Companies (Seperated by ,): ")
+    secondary_window = window.Window(300, 100)
+    secondary_window.retrieve_input(["Companies", "Timerange"])
     tk.mainloop()
-    company_names = secondary_window.response.replace("/ ", "").split(",")
-
-    secondary_window = window.Window()
-    secondary_window.retrieve_input("Timeframe: ")
-    tk.mainloop()
-    time_range = secondary_window.response
+    company_names = secondary_window.response.replace(", ", ",").split(",")
+    time_range = secondary_window.time_range
 
     end_time = None
     start_time = datetime.today()
