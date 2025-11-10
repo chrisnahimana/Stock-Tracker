@@ -43,9 +43,10 @@ class Window:
         self.root.quit()
 
     def retrieve_input(self, queries: list):
-        company_names = Label(self.root, text=queries[0], font=('calibre', 10, 'bold'))
+        self.root.title("")
+        company_names = Label(self.root, text=queries[0], font=('arial', 10, 'bold'))
         company = Entry(self.root, textvariable=self.company_var)
-        timerange = Label(self.root, text=queries[1], font=('calibre', 10, 'bold'))
+        timerange = Label(self.root, text=queries[1], font=('arial', 10, 'bold'))
         time = Entry(self.root, textvariable=self.time_var)
 
         submit = Button(self.root, text="Enter", command=self.button_click)
@@ -84,7 +85,3 @@ class Window:
         canvas = FigureCanvasTkAgg(figure, master=self.root)
         canvas.draw()
         canvas.get_tk_widget().pack(side=tk.TOP, fill=tk.BOTH, expand=1)
-
-        toolbar = NavigationToolbar2Tk(canvas, self.root)
-        toolbar.update()
-        canvas._tkcanvas.pack(side=tk.TOP, fill=tk.BOTH, expand=1)

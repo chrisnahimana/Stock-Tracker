@@ -58,9 +58,12 @@ def search(symbol: str):
 def find(symbol: str, start: datetime, end: datetime):
     opening_prices = [[], []]
 
-    for prices in main_client.list_aggs(symbol, 1, "day", f"{end.strftime('%Y-%m-%d')}", f"{start.strftime('%Y-%m-%d')}"):
-        opening_prices[0].append(prices.vwap)
-        opening_prices[1].append(float(str(prices.timestamp)[:-3]))
+    try:
+        for prices in main_client.list_aggs(symbol, 1, "day", f"{end.strftime('%Y-%m-%d')}", f"{start.strftime('%Y-%m-%d')}"):
+            opening_prices[0].append(prices.vwap)
+            opening_prices[1].append(float(str(prices.timestamp)[:-3]))
+    except urllib3.exceptions.MaxRetryError:
+        sys.exit("No internet connection.")
         
     return opening_prices
 
@@ -68,7 +71,7 @@ def main():
     current_prices = []
     companies = []
 
-    stock.all_stocks('s')
+    stock.all_stocks('f')
 
     secondary_window = window.Window(300, 100)
     secondary_window.retrieve_input(["Companies", "Timerange"])
@@ -88,9 +91,9 @@ def main():
         start_time = datetime.combine(date(int(start_time[2]), int(start_time[0]), int(start_time[1])), datetime.min.time())
         end_time =  datetime.combine(date(int(end_time[2]), int(end_time[0]), int(end_time[1])), datetime.min.time())
     elif date_checked[0]:
-        end_time =  datetime.today() - timedelta(days=date_checked[1])
+        end_time =  start_time - timedelta(days=date_checked[1])
     elif time_range.lower() == "max":
-        end_time =  datetime.today() - timedelta(days=730)
+        end_time =  start_time - timedelta(days=730)
     else:
         try:
             if int(time_range) <= 1:
