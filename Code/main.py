@@ -69,8 +69,16 @@ def main():
     companies = []
 
     stock.all_stocks('s')
-    company_names = str(input("Companies (Seperated by ,): ")).replace(", ", ",").split(",")
-    time_range = input("Timeframe: ")
+
+    secondary_window = window.Window()
+    secondary_window.retrieve_input("Companies (Seperated by ,): ")
+    tk.mainloop()
+    company_names = secondary_window.response.replace("/ ", "").split(",")
+
+    secondary_window = window.Window()
+    secondary_window.retrieve_input("Timeframe: ")
+    tk.mainloop()
+    time_range = secondary_window.response
 
     end_time = None
     start_time = datetime.today()
@@ -117,10 +125,9 @@ def main():
 
         current_prices.append(pricing)
     
-    main_window = tk.Tk()
-    main_window.protocol("WM_DELETE_WINDOW", on_close)
-    window.create_window(main_window, current_prices, companies)
+    main_window = window.Window()
+    main_window.create_window(current_prices, companies)
+    tk.mainloop()
 
 main()
 con.close()
-tk.mainloop()
